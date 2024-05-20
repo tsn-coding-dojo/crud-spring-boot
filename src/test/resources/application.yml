@@ -1,0 +1,36 @@
+server:
+  servlet:
+    context-path: /template/api/elements
+  port: 8086
+
+logging:
+  level:
+    com.thalesgroup: DEBUG
+
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  main:
+    allow-circular-references: true
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# Application information with Spring-boot-actuator
+info:
+  app:
+    name: Coding Academy, Coding dojo, CRUD with Spring Boot
+    description: Template application from the Coding Academy. This service permits to manage elements
+    version: 0.0.1
+    license: "Thales Inner Source Software License: Version 1.2, InnerOpen - Distribution Not Controlled"
+    license.url: https://gitlab.thalesdigital.io/innersource/licenses
+    developers: Stéphane VERNAT, Andreï PETROV
+    contact:
+      name: Stéphane VERNAT
+      email: stephane.vernat@thalesgroup.com
+    copyright: "@Copyright 2022 Thales Group"

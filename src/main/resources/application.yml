@@ -1,0 +1,47 @@
+server:
+  servlet:
+    context-path: /api
+  port: 8080
+
+logging:
+  level:
+    com.thalesgroup: DEBUG
+
+spring:
+  output:
+    ansi:
+      enabled: ALWAYS
+  main:
+    allow-circular-references: true
+
+# Actuator configuration
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+
+# Application information with Spring-boot-actuator
+info:
+  app:
+    name: Coding Academy, Coding dojo, CRUD with Spring Boot
+    description: Template application from the Coding Academy. This service permits to manage elements
+    version: 0.0.1
+    license: "Thales Inner Source Software License: Version 1.2, InnerOpen - Distribution Not Controlled"
+    license.url: https://gitlab.thalesdigital.io/innersource/licenses
+    developers: Stéphane VERNAT, Andreï PETROV
+    contact:
+      name: Stéphane VERNAT
+      email: stephane.vernat@thalesgroup.com
+    copyright: "@Copyright 2022 Thales Group"
+
+# For Swagger
+springdoc:
+  api-docs:
+    path: /api-docs
+  show-actuator: true
+#springdoc.swagger-ui.deepLinking: true
+# Disabling the /api-docs enpoint
+#springdoc.api-docs.enabled: false
+# Disabling the swagger-ui
+#springdoc.swagger-ui.enabled: false
