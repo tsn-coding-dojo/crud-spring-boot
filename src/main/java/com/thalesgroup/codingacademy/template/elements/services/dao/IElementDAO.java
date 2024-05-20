@@ -12,9 +12,13 @@
  */
 package com.thalesgroup.codingacademy.template.elements.services.dao;
 
+import com.thalesgroup.codingacademy.template.elements.services.entities.ElementEntity;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
 /**
  * Manage elements in database
  */
-// TODO : Tell to Spring Boot that it is a repository
-public interface IElementDAO { // TODO : describe on which entity to work and the type of the ID
+@Repository
+public interface IElementDAO extends JpaRepository<ElementEntity, String> {
 }

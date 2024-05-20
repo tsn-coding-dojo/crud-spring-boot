@@ -14,6 +14,10 @@ package com.thalesgroup.codingacademy.template.elements.services.entities;
 
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -26,10 +30,14 @@ import java.time.Instant;
 @Getter
 @Setter
 @NoArgsConstructor
-// TODO : add annotations for JDBC entity, table is element
+@Entity
+@Table(name = "element")
 public class ElementEntity {
-    private String id; // TODO : Primary key
+    @Id
+    private String id;
+    @Column(name = "created_time")
     private Instant createdTimeStamp; // TODO : column name : created_time
+    @Column(name = "last_modified")
     private Instant lastModified; // TODO : column name : last_modified
     private String name;
     private String description;

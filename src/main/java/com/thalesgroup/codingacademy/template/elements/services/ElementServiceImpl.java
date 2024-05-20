@@ -1,12 +1,14 @@
 package com.thalesgroup.codingacademy.template.elements.services;
 
 import com.thalesgroup.codingacademy.template.elements.domain.exceptions.FunctionalException;
-import com.thalesgroup.codingacademy.template.elements.services.dao.ElementsInMemoryDAO;
+import com.thalesgroup.codingacademy.template.elements.services.dao.IElementDAO;
 import com.thalesgroup.codingacademy.template.elements.services.entities.ElementEntity;
 import com.thalesgroup.codingacademy.template.elements.domain.api.services.ElementService;
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
+import jakarta.persistence.EntityNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -25,13 +27,14 @@ public class ElementServiceImpl implements ElementService {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementServiceImpl.class);
 
-    private static ElementsInMemoryDAO elementsInMemoryDAO;
+    private final IElementDAO elementDAO;
 
     /**
      * Constructor to initialize the DAO with Autowired
      */
-    public ElementServiceImpl() {
-        elementsInMemoryDAO = ElementsInMemoryDAO.getInstance();
+    @Autowired
+    public ElementServiceImpl(IElementDAO elementDAO) {
+        this.elementDAO = elementDAO;
     }
 
     /**
@@ -41,18 +44,14 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public List<ElementDto> getAll() {
-        List<ElementDto> elementDtoList;
+        List<ElementDto> elementDtoList = new ArrayList<>();
 
-        List<ElementEntity> elementEntitiesList = elementsInMemoryDAO.getAll();
+        List<ElementEntity> elementEntitiesList = elementDAO.findAll();
         if (elementEntitiesList != null) {
-            elementDtoList = new ArrayList<>();
             for (ElementEntity elementEntity : elementEntitiesList) {
                 ElementDto elementDto = elementEntity.toElementDto();
                 elementDtoList.add(elementDto);
-                LOGGER.info("elementDto = {}", elementDto);
             }
-        } else {
-            elementDtoList = null;
         }
 
         return elementDtoList;
@@ -69,14 +68,20 @@ public class ElementServiceImpl implements ElementService {
     public ElementDto get(String id) throws FunctionalException {
         ElementDto elementDto;
 
-        ElementEntity elementEntity = elementsInMemoryDAO.getById(id);
-        if (elementEntity != null) {
-            elementDto = elementEntity.toElementDto();
-        } else {
+        try {
+            ElementEntity elementEntity = elementDAO.getReferenceById(id);
+            if (elementEntity != null) {
+                elementDto = elementEntity.toElementDto();
+            } else {
+                String errorMessage = "The element with ID " + id + " doesn't exist.";
+                FunctionalException exception = new FunctionalException(errorMessage);
+                LOGGER.error(errorMessage, exception);
+                throw exception;
+            }
+        } catch (EntityNotFoundException exception) {
             String errorMessage = "The element with ID " + id + " doesn't exist.";
-            FunctionalException exception = new FunctionalException(errorMessage);
             LOGGER.error(errorMessage, exception);
-            throw exception;
+            throw new FunctionalException(errorMessage, exception);
         }
 
         return elementDto;
@@ -90,7 +95,7 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public boolean exists(String id) {
-        return elementsInMemoryDAO.existsById(id);
+        return elementDAO.existsById(id);
     }
 
     /**
@@ -101,7 +106,7 @@ public class ElementServiceImpl implements ElementService {
     @Override
     public void save(ElementDto elementDto) {
         ElementEntity elementEntity = new ElementEntity(elementDto);
-        elementsInMemoryDAO.save(elementEntity);
+        elementDAO.save(elementEntity);
     }
 
     /**
@@ -112,11 +117,13 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public void delete(String id) throws FunctionalException {
-        if (!elementsInMemoryDAO.existsById(id)) {
+        if (!elementDAO.existsById(id)) {
             String errorMessage = "There is no element with id " + id + ".";
-            throw new FunctionalException(errorMessage);
+            FunctionalException exception = new FunctionalException(errorMessage);
+            LOGGER.error(errorMessage, exception);
+            throw exception;
         }
-        
-        elementsInMemoryDAO.deleteById(id);
+
+        elementDAO.deleteById(id);
     }
 }

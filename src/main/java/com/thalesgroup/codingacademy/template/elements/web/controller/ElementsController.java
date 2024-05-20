@@ -105,7 +105,7 @@ public class ElementsController {
         try {
             elementDto = elementProcessus.get(id);
             responseEntity = ResponseEntity.ok(elementDto);
-        } catch (FunctionalException e) {
+        } catch (FunctionalException exception) {
             responseEntity = ResponseEntity.notFound().build();
         }
 
