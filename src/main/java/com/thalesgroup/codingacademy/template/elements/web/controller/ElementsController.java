@@ -98,16 +98,16 @@ public class ElementsController {
     })
     @CrossOrigin("*")
     @GetMapping(value = "{id}", produces=MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<ElementDto> get(@PathVariable(ID) String id) {
+    public ResponseEntity<ElementDto> get(@PathVariable(ID) String id) throws FunctionalException {
         ElementDto elementDto;
         ResponseEntity<ElementDto> responseEntity;
 
-        try {
+//        try {
             elementDto = elementProcessus.get(id);
             responseEntity = ResponseEntity.ok(elementDto);
-        } catch (FunctionalException exception) {
-            responseEntity = ResponseEntity.notFound().build();
-        }
+//        } catch (FunctionalException exception) {
+//            responseEntity = ResponseEntity.notFound().build();
+//        }
 
         return responseEntity;
     }
