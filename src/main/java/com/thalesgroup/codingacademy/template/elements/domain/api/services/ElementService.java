@@ -36,8 +36,9 @@ public interface ElementService {
      *
      * @param id : the id of the element to get
      * @return ElementDto : the element with ID from the database
+     * @throws FunctionalException : if element with id not found
      */
-    ElementDto get(String id);
+    ElementDto get(String id) throws FunctionalException;
 
     /**
      * Check if there is already an element with ID in the database

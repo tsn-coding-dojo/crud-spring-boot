@@ -14,11 +14,17 @@ package com.thalesgroup.codingacademy.template.elements.processus;
 
 
 import com.thalesgroup.codingacademy.template.elements.domain.api.processus.ElementProcessus;
+import com.thalesgroup.codingacademy.template.elements.domain.api.services.ElementService;
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
 import com.thalesgroup.codingacademy.template.elements.domain.exceptions.FunctionalException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * The business part to manage elements in Template application
@@ -26,16 +32,19 @@ import java.util.List;
  * @since 0.0.1
  * @author Stéphane VERNAT
  */
-// TODO : Tell to Spring Boot that it is a bean which implement the interface
+@Service
 public class ElementProcessusImpl implements ElementProcessus {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementProcessusImpl.class);
+
+    private final ElementService elementService;
     /**
      * Constructor to initialize the service layer with Autowired
      *
      * @param elementService : the ElementService to initialize
      */
-    // TODO : autowired the persistence layer
-    public ElementProcessusImpl() {
-
+    @Autowired
+    public ElementProcessusImpl(ElementService elementService) {
+        this.elementService = elementService;
     }
 
     /**
@@ -45,7 +54,8 @@ public class ElementProcessusImpl implements ElementProcessus {
      */
     @Override
     public List<ElementDto> getAll() {
-        return null; // TODO : get all elements from persistence layer
+        LOGGER.debug("Get all elements");
+        return elementService.getAll();
     }
 
     /**
@@ -53,10 +63,12 @@ public class ElementProcessusImpl implements ElementProcessus {
      *
      * @param id : the ID of the element to get
      * @return ElementDto : the element with ID from the database
+     * @throws FunctionalException : if element with id not found
      */
     @Override
-    public ElementDto get(String id) {
-        return null; // TODO : get the element by ID from persistence layer
+    public ElementDto get(String id) throws FunctionalException {
+        LOGGER.debug("Get element {}", id);
+        return elementService.get(id);
     }
 
     /**
@@ -67,11 +79,13 @@ public class ElementProcessusImpl implements ElementProcessus {
      */
     @Override
     public ElementDto create(ElementDto elementDto) {
-        elementDto.setId("uuid"); // TODO : use UUID to generate a unique ID
+        LOGGER.debug("Create element {} with description : {}", elementDto.getName(), elementDto.getDescription());
+        UUID uuid = UUID.randomUUID();
+        elementDto.setId(uuid.toString());
         Instant actualDate = Instant.now();
         elementDto.setCreatedTimeStamp(actualDate);
         elementDto.setLastModified(actualDate);
-        // TODO : create the element using persistence layer
+        elementService.save(elementDto);
         return elementDto;
     }
 
@@ -80,11 +94,14 @@ public class ElementProcessusImpl implements ElementProcessus {
      *
      * @param elementDto : the element to update in the database
      * @return ElementDto : the element which has been updated in the database
+     * @throws FunctionalException : if element with id not found
      */
     @Override
-    public ElementDto update(ElementDto elementDto) {
-        // TODO : get the created time from the existing element from persistence layer --> createdTimeStamp
-        Instant createdTimeStamp = null;
+    public ElementDto update(ElementDto elementDto) throws FunctionalException {
+        LOGGER.debug("Update element {}", elementDto.getId());
+
+        ElementDto oldElementDto = elementService.get(elementDto.getId());
+        Instant createdTimeStamp = oldElementDto.getCreatedTimeStamp();
 
         // Keep the existing creation date
         elementDto.setCreatedTimeStamp(createdTimeStamp);
@@ -92,8 +109,7 @@ public class ElementProcessusImpl implements ElementProcessus {
         Instant actualDate = Instant.now();
         elementDto.setLastModified(actualDate);
 
-        // TODO : save the element to update using persistence layer
-
+        elementService.save(elementDto);
         return elementDto;
     }
 
@@ -105,6 +121,7 @@ public class ElementProcessusImpl implements ElementProcessus {
      */
     @Override
     public void delete(String id) throws FunctionalException {
-        // TODO : delete the element by ID using the persistence layer
+        LOGGER.debug("Delete element {}", id);
+        elementService.delete(id);
     }
 }

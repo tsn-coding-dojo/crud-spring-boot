@@ -12,6 +12,7 @@
  */
 package com.thalesgroup.codingacademy.template.elements.web.controller;
 
+import com.thalesgroup.codingacademy.template.elements.domain.api.processus.ElementProcessus;
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
 import com.thalesgroup.codingacademy.template.elements.domain.exceptions.FunctionalException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -20,8 +21,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -41,20 +41,19 @@ import java.util.List;
 @RestController
 @RequestMapping("/elements")
 public class ElementsController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(ElementsController.class);
     private static final String ID = "id";
 
-    //private final ElementProcessus elementProcessus;
+    private final ElementProcessus elementProcessus;
 
     /**
      * Constructor to initialize the business layer with Autowired
      *
      * @param elementProcessus : the ElementProcessus to initialize
      */
-    // @Autowired // TODO : Exercice 3, Instanciate the business layer. Autowired in constructor is the best way.
-//    public ElementsController(ElementProcessus elementProcessus) {
-//        this.elementProcessus = elementProcessus;
-//    }
+    @Autowired
+    public ElementsController(ElementProcessus elementProcessus) {
+        this.elementProcessus = elementProcessus;
+    }
 
     /**
      * The endpoint to get all element from database
@@ -76,8 +75,7 @@ public class ElementsController {
     @CrossOrigin("*")
     @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ElementDto>> getAll() {
-        LOGGER.debug("Get all elements");
-        List<ElementDto> elementsDtoList = null; // TODO : Exercice 3, get all elements
+        List<ElementDto> elementsDtoList = elementProcessus.getAll();
         return ResponseEntity.ok(elementsDtoList);
     }
 
@@ -101,9 +99,17 @@ public class ElementsController {
     @CrossOrigin("*")
     @GetMapping(value = "{id}", produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ElementDto> get(@PathVariable(ID) String id) {
-        LOGGER.debug("Get element {}", id);
-        ElementDto elementDto = null; // TODO : Exercice 3, get one element by ID
-        return ResponseEntity.ok(elementDto);
+        ElementDto elementDto;
+        ResponseEntity<ElementDto> responseEntity;
+
+        try {
+            elementDto = elementProcessus.get(id);
+            responseEntity = ResponseEntity.ok(elementDto);
+        } catch (FunctionalException e) {
+            responseEntity = ResponseEntity.notFound().build();
+        }
+
+        return responseEntity;
     }
 
     /**
@@ -127,8 +133,7 @@ public class ElementsController {
     })
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ElementDto> create(@RequestBody ElementDto elementDto) {
-        LOGGER.debug("Create element {} with description : {}", elementDto.getName(), elementDto.getDescription());
-        ElementDto createdElementDto = null; // TODO : Exercice 3, create the element
+        ElementDto createdElementDto = elementProcessus.create(elementDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdElementDto);
     }
 
@@ -153,9 +158,17 @@ public class ElementsController {
     })
     @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ElementDto> update(@RequestBody ElementDto elementDto) {
-        LOGGER.debug("Update element {}", elementDto.getId());
-        ElementDto updatedElementDto = null; // TODO : Exercice 3, update the element
-        return ResponseEntity.ok(updatedElementDto);
+        ElementDto updatedElementDto;
+        ResponseEntity<ElementDto> responseEntity;
+
+        try {
+            updatedElementDto = elementProcessus.update(elementDto);
+            responseEntity = ResponseEntity.ok(updatedElementDto);
+        } catch (FunctionalException e) {
+            responseEntity = ResponseEntity.notFound().build();
+        }
+
+        return responseEntity;
     }
 
     /**
@@ -163,7 +176,6 @@ public class ElementsController {
      *
      * @param id : the ID of the element to delete
      * @return ResponseEntity : the response with http status code 204 (no content).
-     * @throws FunctionalException : if there is no element for the ID.
      */
     @Operation(description = "Delete an element from the database")
     @ApiResponses(value = {
@@ -181,9 +193,16 @@ public class ElementsController {
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
     @DeleteMapping(value = "{id}")
-    public ResponseEntity<ElementDto> delete(@PathVariable(ID) String id) throws FunctionalException {
-        LOGGER.debug("Delete element {}", id);
-        // TODO : Exercice 3, delete the element defined by its id
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    public ResponseEntity<ElementDto> delete(@PathVariable(ID) String id) {
+        ResponseEntity<ElementDto> responseEntity;
+
+        try {
+            elementProcessus.delete(id);
+            responseEntity = ResponseEntity.noContent().build();
+        } catch (FunctionalException e) {
+            responseEntity = ResponseEntity.notFound().build();
+        }
+
+        return responseEntity;
     }
 }

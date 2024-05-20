@@ -36,8 +36,9 @@ public interface ElementProcessus {
      *
      * @param id : the ID of the element to get from the database
      * @return ElementDto : the element with ID from the database
+     * @throws FunctionalException : if element with id not found
      */
-    ElementDto get(String id);
+    ElementDto get(String id) throws FunctionalException;
 
     /**
      * Create (add) the element in the database
@@ -52,8 +53,9 @@ public interface ElementProcessus {
      *
      * @param elementDto : the element to update in the database
      * @return ElementDto : the element which has been updated in the database
+     * @throws FunctionalException : if element with id not found
      */
-    ElementDto update(ElementDto elementDto);
+    ElementDto update(ElementDto elementDto) throws FunctionalException;
 
     /**
      * Delete the element with ID from the database

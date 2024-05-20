@@ -6,6 +6,7 @@ import com.thalesgroup.codingacademy.template.elements.domain.api.services.Eleme
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  * @since 0.0.1
  * @author Stéphane VERNAT
  */
-// TODO : Tell to Spring Boot that it is a bean which implement the interface
+@Service
 public class ElementServiceImpl implements ElementService {
     /**
      * The logger
@@ -28,7 +29,6 @@ public class ElementServiceImpl implements ElementService {
      *
      * @param elementDAO : the Element DAO to initialize
      */
-    //@Autowired
     public ElementServiceImpl() {
 
     }
@@ -62,9 +62,10 @@ public class ElementServiceImpl implements ElementService {
      *
      * @param id : the ID of the element to get
      * @return ElementDto : the element with the ID from the database
+     * @throws FunctionalException : if element with id not found
      */
     @Override
-    public ElementDto get(String id) {
+    public ElementDto get(String id) throws FunctionalException {
         ElementDto elementDto;
 
         //try {
@@ -72,7 +73,10 @@ public class ElementServiceImpl implements ElementService {
             if (elementEntity != null) {
                 elementDto = elementEntity.toElementDto();
             } else {
-                elementDto = null;
+                String errorMessage = "The element with ID " + id + " doesn't exist.";
+                FunctionalException exception = new FunctionalException(errorMessage);
+                LOGGER.error(errorMessage, exception);
+                throw exception;
             }
 //        } catch (EntityNotFoundException exception) {
 //            String errorMessage = "The element with ID " + id + " doesn't exist.";
@@ -112,7 +116,9 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public void delete(String id) throws FunctionalException {
-        if (!true) { // TODO : check if element with ID exist before delete it
+        boolean exists = false;
+
+        if (!exists) { // TODO : check if element with ID exist before delete it
             String errorMessage = "There is no element with id " + id + ".";
             throw new FunctionalException(errorMessage);
         }
