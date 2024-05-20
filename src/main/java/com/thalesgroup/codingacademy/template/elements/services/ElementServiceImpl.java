@@ -1,6 +1,7 @@
 package com.thalesgroup.codingacademy.template.elements.services;
 
 import com.thalesgroup.codingacademy.template.elements.domain.exceptions.FunctionalException;
+import com.thalesgroup.codingacademy.template.elements.services.dao.ElementsInMemoryDAO;
 import com.thalesgroup.codingacademy.template.elements.services.entities.ElementEntity;
 import com.thalesgroup.codingacademy.template.elements.domain.api.services.ElementService;
 import com.thalesgroup.codingacademy.template.elements.domain.dto.ElementDto;
@@ -24,13 +25,13 @@ public class ElementServiceImpl implements ElementService {
      */
     private static final Logger LOGGER = LoggerFactory.getLogger(ElementServiceImpl.class);
 
+    private static ElementsInMemoryDAO elementsInMemoryDAO;
+
     /**
      * Constructor to initialize the DAO with Autowired
-     *
-     * @param elementDAO : the Element DAO to initialize
      */
     public ElementServiceImpl() {
-
+        elementsInMemoryDAO = ElementsInMemoryDAO.getInstance();
     }
 
     /**
@@ -42,7 +43,7 @@ public class ElementServiceImpl implements ElementService {
     public List<ElementDto> getAll() {
         List<ElementDto> elementDtoList;
 
-        List<ElementEntity> elementEntitiesList = null; // TODO : use DAO to get all element entities
+        List<ElementEntity> elementEntitiesList = elementsInMemoryDAO.getAll();
         if (elementEntitiesList != null) {
             elementDtoList = new ArrayList<>();
             for (ElementEntity elementEntity : elementEntitiesList) {
@@ -68,21 +69,15 @@ public class ElementServiceImpl implements ElementService {
     public ElementDto get(String id) throws FunctionalException {
         ElementDto elementDto;
 
-        //try {
-            ElementEntity elementEntity = null; // TODO : use DAO to get the element by ID
-            if (elementEntity != null) {
-                elementDto = elementEntity.toElementDto();
-            } else {
-                String errorMessage = "The element with ID " + id + " doesn't exist.";
-                FunctionalException exception = new FunctionalException(errorMessage);
-                LOGGER.error(errorMessage, exception);
-                throw exception;
-            }
-//        } catch (EntityNotFoundException exception) {
-//            String errorMessage = "The element with ID " + id + " doesn't exist.";
-//            LOGGER.warn(errorMessage, exception);
-//            elementDto = null;
-//        }
+        ElementEntity elementEntity = elementsInMemoryDAO.getById(id);
+        if (elementEntity != null) {
+            elementDto = elementEntity.toElementDto();
+        } else {
+            String errorMessage = "The element with ID " + id + " doesn't exist.";
+            FunctionalException exception = new FunctionalException(errorMessage);
+            LOGGER.error(errorMessage, exception);
+            throw exception;
+        }
 
         return elementDto;
     }
@@ -95,7 +90,7 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public boolean exists(String id) {
-        return true; // TODO : use DAO to check if element with ID exist
+        return elementsInMemoryDAO.existsById(id);
     }
 
     /**
@@ -105,7 +100,8 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public void save(ElementDto elementDto) {
-        // TODO : use DAO to add or update the element
+        ElementEntity elementEntity = new ElementEntity(elementDto);
+        elementsInMemoryDAO.save(elementEntity);
     }
 
     /**
@@ -116,12 +112,11 @@ public class ElementServiceImpl implements ElementService {
      */
     @Override
     public void delete(String id) throws FunctionalException {
-        boolean exists = false;
-
-        if (!exists) { // TODO : check if element with ID exist before delete it
+        if (!elementsInMemoryDAO.existsById(id)) {
             String errorMessage = "There is no element with id " + id + ".";
             throw new FunctionalException(errorMessage);
         }
-        // TODO : use DAO to delete the element
+        
+        elementsInMemoryDAO.deleteById(id);
     }
 }
