@@ -20,6 +20,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -36,9 +38,10 @@ import java.util.List;
  */
 @Tag(name = "Microservice API to manage elements in the database of the Template application",
         description = "Microservice API to manage elements in the database of the Template application")
-// TODO : Exercice 2, tell this is a controller to Spring Boot
-// TODO : Exercice 2, Set the relative path of this controller --> elements. Absolute path is /api/elements (see configuration file for /api)
+@RestController
+@RequestMapping("/elements")
 public class ElementsController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(ElementsController.class);
     private static final String ID = "id";
 
     //private final ElementProcessus elementProcessus;
@@ -71,8 +74,9 @@ public class ElementsController {
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
     @CrossOrigin("*")
-    // TODO : Exercice 2, Add verb
+    @GetMapping(produces=MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<List<ElementDto>> getAll() {
+        LOGGER.debug("Get all elements");
         List<ElementDto> elementsDtoList = null; // TODO : Exercice 3, get all elements
         return ResponseEntity.ok(elementsDtoList);
     }
@@ -95,8 +99,9 @@ public class ElementsController {
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
     @CrossOrigin("*")
-    // TODO : Exercice 2, add verb
-    public ResponseEntity<ElementDto> get(String id) { // TODO : Exercice 2, get the id from the request in the path /api/elements/{id}
+    @GetMapping(value = "{id}", produces=MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ElementDto> get(@PathVariable(ID) String id) {
+        LOGGER.debug("Get element {}", id);
         ElementDto elementDto = null; // TODO : Exercice 3, get one element by ID
         return ResponseEntity.ok(elementDto);
     }
@@ -120,8 +125,9 @@ public class ElementsController {
                     content = @Content(schema = @Schema(implementation = String.class),
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
-    // TODO : Exercice 2, add verb
-    public ResponseEntity<ElementDto> create(ElementDto elementDto) { // TODO : Exercice 2, get the element from the body in the request
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ElementDto> create(@RequestBody ElementDto elementDto) {
+        LOGGER.debug("Create element {} with description : {}", elementDto.getName(), elementDto.getDescription());
         ElementDto createdElementDto = null; // TODO : Exercice 3, create the element
         return ResponseEntity.status(HttpStatus.CREATED).body(createdElementDto);
     }
@@ -145,8 +151,9 @@ public class ElementsController {
                     content = @Content(schema = @Schema(implementation = String.class),
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
-    // TODO : Exercice 2, add verb
-    public ResponseEntity<ElementDto> update(ElementDto elementDto) { // TODO : Exercice 2, get the element from the body in the request
+    @PutMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<ElementDto> update(@RequestBody ElementDto elementDto) {
+        LOGGER.debug("Update element {}", elementDto.getId());
         ElementDto updatedElementDto = null; // TODO : Exercice 3, update the element
         return ResponseEntity.ok(updatedElementDto);
     }
@@ -173,8 +180,9 @@ public class ElementsController {
                     content = @Content(schema = @Schema(implementation = String.class),
                             mediaType = MediaType.TEXT_HTML_VALUE))
     })
-    // TODO : Exercice 2, add verb
-    public ResponseEntity<ElementDto> delete(String id) throws FunctionalException { // TODO : Exercice 2, get the id from the request in the path /api/elements/{id}
+    @DeleteMapping(value = "{id}")
+    public ResponseEntity<ElementDto> delete(@PathVariable(ID) String id) throws FunctionalException {
+        LOGGER.debug("Delete element {}", id);
         // TODO : Exercice 3, delete the element defined by its id
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
